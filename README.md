@@ -10,8 +10,8 @@ Then, you can copy the file **FreePDK45.lyp** and the 2 directories **drc** and 
 `#HOMEDATA#/klayout/tech/FreePDK45  (under Windows)`  
 
 Then open with a text editor the file :  
-`$HOME/.klayout/tech/FreePDK45/FreePDK45.lyt (under Linux)`  
-`#HOMEDATA#/.klayout/tech/FreePDK45/FreePDK45.lyt (under Windows)`  
+`$HOME/.klayout/tech/FreePDK45/FreePDK45.lyt (under Linux)`   
+`#HOMEDATA#\.klayout\tech\FreePDK45\FreePDK45.lyt (under Windows)`  (#HOMEDATA# = c:\users\your_account)  
  
 and replace the 2 lines : 
 
