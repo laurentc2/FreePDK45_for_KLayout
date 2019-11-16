@@ -11,7 +11,7 @@ Then, you can copy the file **FreePDK45.lyp** and the 2 directories **drc** and 
 
 Then open with a text editor the file :  
 `$HOME/.klayout/tech/FreePDK45/FreePDK45.lyt (under Linux)`   
-`#HOMEDATA#\.klayout\tech\FreePDK45\FreePDK45.lyt (under Windows)`  ( #HOMEDATA# = c:\users\ _your_account_ )  
+`#HOMEDATA#\.klayout\tech\FreePDK45\FreePDK45.lyt (under Windows)`  ( #HOMEDATA# = C:\users\ _your_account_ )  
  
 and replace the 2 lines : 
 
