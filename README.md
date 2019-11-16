@@ -1,6 +1,10 @@
 # FreePDK45_for_KLayout
----
+
 ## KLayout technology files for FreePDK45
+
+ * FreePDK45.lyp   : layers color and shape description  
+ * FreePDK45.lydrc : DRC script  
+ * FreePDK45.lylvs : LVS script  
 
 Within KLayout, create the technolgy FreePDK45 by the menu : **[Tools]-[Manage Technologies]**  
 Then press + at the bottom left, you will add a new technology that you can call : _FreePDK45_
