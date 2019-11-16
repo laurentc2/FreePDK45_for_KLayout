@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description/>
+ <version/>
+ <category>lvs</category>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>false</autorun>
+ <autorun-early>false</autorun-early>
+ <shortcut/>
+ <show-in-menu>true</show-in-menu>
+ <group-name>lvs_scripts</group-name>
+ <menu-path>tools_menu.lvs.end</menu-path>
+ <interpreter>dsl</interpreter>
+ <dsl-interpreter-name>lvs-dsl-xml</dsl-interpreter-name>
+ <text>#
+# Extraction for freePDK45
+#
+############################
+
+# Hierarchical mode
+deep
+# Print details
+verbose
+
+# Output generation
+report_lvs("lvs_report.lvsdb")
+report_netlist("extracted.l2n")
+
+# true: use net names instead of numbers
+# false: use numbers for nets
+   spice_with_net_names = true
+# true: put in comments with details
+# false: no comments
+   spice_with_comments = false
+
+# Extracted netlist
+target_netlist(File.join(File.dirname(RBA::CellView::active.filename), source.cell_name+"_extracted.cir"), write_spice(spice_with_net_names, spice_with_comments),  "Extracted by KLayout on : #{Time.now.strftime("%d/%m/%Y %H:%M")}")
+
+# Specify the reference CIRCUIT NETLIST
+schematic("sram_1rw_8b_256w_1bank_freepdk45.sp")
+
+# layers definitions
+########################
+active     = input(1, 0)
+pwell      = input(2, 0)
+nwell      = input(3, 0)
+nplus      = input(4, 0)
+pplus      = input(5, 0)
+vtg        = input(6, 0)
+vth        = input(7, 0)
+thkox      = input(8, 0)
+poly       = input(9, 0)
+cont       = input(10, 0)
+metal1     = input(11, 0)
+via1       = input(12, 0)
+metal2     = input(13, 0)
+via2       = input(14, 0)
+metal3     = input(15, 0)
+via3       = input(16, 0)
+metal4     = input(17, 0)
+via4       = input(18, 0)
+metal5     = input(19, 0)
+via5       = input(20, 0)
+metal6     = input(21, 0)
+via6       = input(22, 0)
+metal7     = input(23, 0)
+via7       = input(24, 0)
+metal8     = input(25, 0)
+via8       = input(26, 0)
+metal9     = input(27, 0)
+via9       = input(28, 0)
+metal10    = input(29, 0)
+
+# Bulk layer for terminal provisioning
+bulk        = polygon_layer
+
+# Computed layers
+active_in_nwell = active &amp; nwell
+pactive    = active_in_nwell &amp; pplus
+ntie       = active_in_nwell &amp; nplus
+pgate      = pactive &amp; poly
+psd        = pactive - pgate
+lv_pgate   = pgate - vtg &amp; vth - thkox
+gv_pgate   = pgate &amp; vtg - vth - thkox
+hv_pgate   = pgate - vtg - vth &amp; thkox
+
+active_in_pwell = active &amp; pwell
+nactive    = active_in_pwell &amp; nplus
+ptie       = active_in_pwell &amp; pplus
+ngate      = nactive &amp; poly
+nsd        = nactive - ngate
+lv_ngate   = ngate - vtg &amp; vth - thkox
+gv_ngate   = ngate &amp; vtg - vth - thkox
+hv_ngate   = ngate - vtg - vth &amp; thkox
+
+# PMOS transistor device extraction
+extract_devices(mos4("PMOS_LVT"), { "SD" =&gt; psd, "G" =&gt; lv_pgate, "tS" =&gt; psd, "tD" =&gt; psd, "tG" =&gt; poly, "W" =&gt; nwell })
+extract_devices(mos4("PMOS_GVT"), { "SD" =&gt; psd, "G" =&gt; gv_pgate, "tS" =&gt; psd, "tD" =&gt; psd, "tG" =&gt; poly, "W" =&gt; nwell })
+extract_devices(mos4("PMOS_HVT"), { "SD" =&gt; psd, "G" =&gt; hv_pgate, "tS" =&gt; psd, "tD" =&gt; psd, "tG" =&gt; poly, "W" =&gt; nwell })
+
+# NMOS transistor device extraction
+extract_devices(mos4("NMOS_LVT"), { "SD" =&gt; nsd, "G" =&gt; lv_ngate, "tS" =&gt; nsd, "tD" =&gt; nsd, "tG" =&gt; poly, "W" =&gt; pwell })
+extract_devices(mos4("NMOS_GVT"), { "SD" =&gt; nsd, "G" =&gt; gv_ngate, "tS" =&gt; nsd, "tD" =&gt; nsd, "tG" =&gt; poly, "W" =&gt; pwell })
+extract_devices(mos4("NMOS_HVT"), { "SD" =&gt; nsd, "G" =&gt; hv_ngate, "tS" =&gt; nsd, "tD" =&gt; nsd, "tG" =&gt; poly, "W" =&gt; pwell })
+
+
+# Define connectivity for netlist extraction
+
+# Inter-layer
+connect(nwell,  ntie)
+connect(pwell,  ptie)
+connect(cont,   ntie)
+connect(cont,   ptie)
+connect(psd,    cont)
+connect(nsd,    cont)
+connect(poly,   cont)
+connect(cont,   metal1)
+connect(cont,   metal1)
+connect(metal1, via1)
+connect(via1,   metal2)
+connect(metal2, via2)
+connect(via2,   metal3)
+connect(metal3, via3)
+connect(via3,   metal4)
+connect(metal4, via4)
+connect(via4,   metal5)
+connect(metal5, via5)
+connect(via5,   metal6)
+connect(metal6, via6)
+connect(via6,   metal7)
+connect(metal7, via7)
+connect(via7,   metal8)
+connect(metal8, via8)
+connect(via8,   metal9)
+connect(metal9, via9)
+connect(via9,   metal10)
+
+# Global
+connect_global(ptie, "gnd")
+connect_global(bulk, "gnd")
+#connect_implicit("VDD")
+
+# Actually performs the extraction
+netlist # ... not really required
+
+# Flatten cells which are present in one netlist only
+align
+# SIMPLIFICATION of the netlist
+#netlist.make_top_level_pins
+#netlist.combine_devices
+#netlist.purge
+#netlist.purge_nets
+netlist.simplify
+#schematic.simplify
+
+compare</text>
+</klayout-macro>
