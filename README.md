@@ -5,7 +5,7 @@
 Within KLayout, create the technolgy FreePDK45 by the menu : **[Tools]-[Manage Technologies]**  
 Then press + at the bottom left, you will add a new technology that you can call : _FreePDK45_
 
-Then, you can copy the file FreePDK45.lyp and the 2 directories lvs and drc of that project in the directory :  
+Then, you can copy the file **FreePDK45.lyp** and the 2 directories **drc** and **lvs** of that project in your directory :  
 `$HOME/.klayout/tech/FreePDK45  (under Linux)`  
 `#HOMEDATA#/klayout/tech/FreePDK45  (under Windows)`  
 
