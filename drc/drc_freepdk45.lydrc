@@ -47,39 +47,44 @@ verbose(true)
 
 # layers definitions
 ########################
-active     = input(1, 0)
-pwell      = input(2, 0)
-nwell      = input(3, 0)
-nplus      = input(4, 0)
-pplus      = input(5, 0)
-vtg         = input(6, 0)
-vth         = input(7, 0)
-thkox     = input(8, 0)
-poly       = input(9, 0)
-cont       = input(10, 0)
-metal1   = input(11, 0)
-via1        = input(12, 0)
-metal2    = input(13, 0)
-via2        = input(14, 0)
-metal3    = input(15, 0)
-via3        = input(16, 0)
-metal4    = input(17, 0)
-via4        = input(18, 0)
-metal5    = input(19, 0)
-via5        = input(20, 0)
-metal6    = input(21, 0)
-via6        = input(22, 0)
-metal7    = input(23, 0)
-via7        = input(24, 0)
-metal8    = input(25, 0)
-via8        = input(26, 0)
-metal9    = input(27, 0)
-via9        = input(28, 0)
-metal10  = input(29, 0)
+active     = polygons(1, 0)
+pwell      = polygons(2, 0)
+nwell      = polygons(3, 0)
+nplus      = polygons(4, 0)
+pplus      = polygons(5, 0)
+vtg         = polygons(6, 0)
+vth         = polygons(7, 0)
+thkox     = polygons(8, 0)
+poly       = polygons(9, 0)
+cont       = polygons(10, 0)
+metal1   = polygons(11, 0)
+via1        = polygons(12, 0)
+metal2    = polygons(13, 0)
+via2        = polygons(14, 0)
+metal3    = polygons(15, 0)
+via3        = polygons(16, 0)
+metal4    = polygons(17, 0)
+via4        = polygons(18, 0)
+metal5    = polygons(19, 0)
+via5        = polygons(20, 0)
+metal6    = polygons(21, 0)
+via6        = polygons(22, 0)
+metal7    = polygons(23, 0)
+via7        = polygons(24, 0)
+metal8    = polygons(25, 0)
+via8        = polygons(26, 0)
+metal9    = polygons(27, 0)
+via9        = polygons(28, 0)
+metal10  = polygons(29, 0)
 
 # DRC section
 ########################
 info("DRC section")
+
+# splits a layer classes with increasing min dimensions
+def classify_by_width(layer, *dimensions)
+  dimensions.collect { |d| layer = layer.sized(-0.5 * (d - 1.dbu)).sized(0.5 * (d - 1.dbu)) }
+end
 
 #   Wells
 well = nwell.or(pwell)
@@ -93,15 +98,14 @@ vth.not(well).output("VT.1","VT.1 : Vth adjust layers must coincide with well")
  
  #   Poly
 gate = poly &amp; active
-poly.sized(-1.dbu).sized(1.dbu).width(50.nm, euclidian).output("POLY.1", "POLY.1 : Minimum width of poly : 50nm")
-# sized(-1.dbu).sized(1.dbu) : to remove texts from the checks
+poly.width(50.nm, euclidian).output("POLY.1", "POLY.1 : Minimum width of poly : 50nm")
 if poly.separation(active, 140.nm, projection).polygons?
   poly.separation(active, 140.nm, projection).polygons.without_area(0).output("POLY.2", "POLY.2 : Minimum spacing of poly AND active: 140nm")
 end
 poly.enclosing(gate, 55.nm, projection).polygons.without_area(0).output("POLY.3", "POLY.3 : Minimum poly extension beyond active : 55nm")
 active.enclosing(gate, 70.nm, projection).polygons.without_area(0).output("POLY.4", "POLY.4 : Minimum enclosure of active around gate : 70nm")
 poly.not(active).separation(active, 50.nm, projection).polygons.without_area(0).output("POLY.5", "POLY.5 : Minimum spacing of field poly to active: 50nm")
-poly.sized(-1.dbu).sized(1.dbu).space(75.nm, euclidian).output("POLY.6", "POLY.6 : Minimum spacing of field poly: 75nm")
+poly.space(75.nm, euclidian).output("POLY.6", "POLY.6 : Minimum spacing of field poly: 75nm")
 
  #   Active
 active.width(90.nm, euclidian).output("ACTIVE.1", "ACTIVE.1 : Minimum width of active : 90nm")
@@ -126,19 +130,20 @@ poly.enclosing(cont, 5.nm, euclidian).output("CONTACT.5", "CONTACT.5 : Minimum e
 cont.separation(poly, 35.nm, euclidian).output("CONTACT.6", "CONTACT.6 : Minimum spacing of contact and poly : 35nm")
 
 #   Metal1
-metal1.sized(-1.dbu).sized(1.dbu).width(65.nm, euclidian).output("METAL1.1", "METAL1.1 : Minimum width of metal1 : 65nm")
-metal1.sized(-1.dbu).sized(1.dbu).space(65.nm, euclidian).output("METAL1.2", "METAL1.2 : Minimum spacing of metal1 : 65nm")
+metal1.width(65.nm, euclidian).output("METAL1.1", "METAL1.1 : Minimum width of metal1 : 65nm")
+metal1.space(65.nm, euclidian).output("METAL1.2", "METAL1.2 : Minimum spacing of metal1 : 65nm")
 cont_edges_with_less_enclosure = metal1.enclosing(cont, 35.nm, projection).second_edges
 error_corners = cont_edges_with_less_enclosure.width(angle_limit(100.0), 1.dbu)
 cont.interacting(error_corners.polygons(1.dbu)).output("METAL1.3", "METAL1.3 : Minimum enclosure around contact on two opposite sides : 35nm")
 via1_edges_with_less_enclosure = metal1.enclosing(via1, 35.nm, projection).second_edges
 error_corners = via1_edges_with_less_enclosure.width(angle_limit(100.0), 1.dbu)
 via1.interacting(error_corners.polygons(1.dbu)).output("METAL1.4", "METAL1.4 : Minimum enclosure around via1 on two opposite sides : 35nm")
-metal1.sized(-1.dbu).sized(-45.nm).sized(45.nm).edges.with_length(300.nm,nil).space(90.nm,euclidian).output("METAL1.5", "METAL1.5 : Minimum spacing of metal1 wider than 90 nm and longer than 300 nm : 90nm")
-metal1.sized(-1.dbu).sized(-135.nm).sized(135.nm).edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL1.6", "METAL1.6 : Minimum spacing of metal1 wider than 270 nm and longer than 900 nm : 270nm")
-metal1.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL1.7", "METAL1.7 : Minimum spacing of metal1 wider than 500 nm and longer than 1.8 um : 500nm")
-metal1.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL1.8", "METAL1.8 : Minimum spacing of metal1 wider than 900 nm and longer than 2.7 um : 900nm")
-metal1.sized(-1.dbu).sized(-750.nm).sized(750.nm).edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL1.9", "METAL1.9 : Minimum spacing of metal1 wider than 1500 nm and longer than 4.0 um : 1500nm")
+metal1_gt90, metal1_gt270, metal1_gt500, metal1_gt900, metal1_gt1500 = classify_by_width(metal1, 90.nm, 270.nm, 500.nm, 900.nm, 1500.nm)
+metal1_gt90.edges.with_length(300.nm,nil).space(90.nm,euclidian).output("METAL1.5", "METAL1.5 : Minimum spacing of metal1 wider than 90 nm and longer than 300 nm : 90nm")
+metal1_gt270.edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL1.6", "METAL1.6 : Minimum spacing of metal1 wider than 270 nm and longer than 900 nm : 270nm")
+metal1_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL1.7", "METAL1.7 : Minimum spacing of metal1 wider than 500 nm and longer than 1.8 um : 500nm")
+metal1_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL1.8", "METAL1.8 : Minimum spacing of metal1 wider than 900 nm and longer than 2.7 um : 900nm")
+metal1_gt1500.edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL1.9", "METAL1.9 : Minimum spacing of metal1 wider than 1500 nm and longer than 4.0 um : 1500nm")
 
 #   Via1
 via1.edges.without_length(65.nm).output("VIA1.1", "VIA1.1 : Minimum/Maximum width of via1 : 65nm")
@@ -147,19 +152,20 @@ via1.not(metal1).output("VIA1.3", "VIA1.3 : via1 must be inside metal1")
 via1.not(metal2).output("VIA1.4", "VIA1.4 : via1 must be inside metal2")
 
 #   metal2
-metal2.sized(-1.dbu).sized(1.dbu).width(70.nm, euclidian).output("METAL2.1", "METAL2.1 : Minimum width of  intermediate metal2 : 70nm")
-metal2.sized(-1.dbu).sized(1.dbu).space(70.nm, euclidian).output("METAL2.2", "METAL2.2 : Minimum spacing of  intermediate metal2 : 70nm")
+metal2.width(70.nm, euclidian).output("METAL2.1", "METAL2.1 : Minimum width of  intermediate metal2 : 70nm")
+metal2.space(70.nm, euclidian).output("METAL2.2", "METAL2.2 : Minimum spacing of  intermediate metal2 : 70nm")
 via1_edges_with_less_enclosure = metal2.enclosing(via1, 35.nm, projection).second_edges
 error_corners = via1_edges_with_less_enclosure.width(angle_limit(100.0), 1.dbu)
 via1.interacting(error_corners.polygons(1.dbu)).output("METAL2.3", "METAL2.3 : Minimum enclosure around via1 on two opposite sides : 35nm")
 via2_edges_with_less_enclosure = metal2.enclosing(via2, 35.nm, projection).second_edges
 error_corners = via2_edges_with_less_enclosure.width(angle_limit(100.0), 1.dbu)
 via2.interacting(error_corners.polygons(1.dbu)).output("METAL2.4", "METAL2.4 : Minimum enclosure around via2 on two opposite sides : 35nm")
-metal2.sized(-1.dbu).sized(-45.nm).sized(45.nm).edges.with_length(300.nm,nil).space(90.nm,euclidian).output("METAL2.5", "METAL2.5 : Minimum spacing of  intermediate metal2 wider than 90 nm and longer than 300 nm : 90nm")
-metal2.sized(-1.dbu).sized(-135.nm).sized(135.nm).edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL2.6", "METAL2.6 : Minimum spacing of  intermediate metal2 wider than 270 nm and longer than 900 nm : 270nm")
-metal2.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL2.7", "METAL2.7 : Minimum spacing of  intermediate metal2 wider than 500 nm and longer than 1.8 um : 500nm")
-metal2.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL2.8", "METAL2.8 : Minimum spacing of  intermediate metal2 wider than 900 nm and longer than 2.7 um : 900nm")
-metal2.sized(-1.dbu).sized(-750.nm).sized(750.nm).edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL2.9", "METAL2.9 : Minimum spacing of  intermediate metal2 wider than 1500 nm and longer than 4.0 um : 1500nm")
+metal2_gt90, metal2_gt270, metal2_gt500, metal2_gt900, metal2_gt1500 = classify_by_width(metal2, 90.nm, 270.nm, 500.nm, 900.nm, 1500.nm)
+metal2_gt90.edges.with_length(300.nm,nil).space(90.nm,euclidian).output("METAL2.5", "METAL2.5 : Minimum spacing of  intermediate metal2 wider than 90 nm and longer than 300 nm : 90nm")
+metal2_gt270.edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL2.6", "METAL2.6 : Minimum spacing of  intermediate metal2 wider than 270 nm and longer than 900 nm : 270nm")
+metal2_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL2.7", "METAL2.7 : Minimum spacing of  intermediate metal2 wider than 500 nm and longer than 1.8 um : 500nm")
+metal2_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL2.8", "METAL2.8 : Minimum spacing of  intermediate metal2 wider than 900 nm and longer than 2.7 um : 900nm")
+metal2_gt1500.edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL2.9", "METAL2.9 : Minimum spacing of  intermediate metal2 wider than 1500 nm and longer than 4.0 um : 1500nm")
 
 #   via2
 via2.edges.without_length(70.nm).output("VIA2.1", "VIA2.1 : Minimum/Maximum width of via2 : 70nm")
@@ -168,19 +174,20 @@ via2.not(metal2).output("VIA2.3", "VIA2.3 : via2 must be inside metal2")
 via2.not(metal3).output("VIA2.4", "VIA2.4 : via2 must be inside metal3")
 
 #   metal3
-metal3.sized(-1.dbu).sized(1.dbu).width(70.nm, euclidian).output("METAL3.1", "METAL3.1 : Minimum width of  intermediate metal3 : 70nm")
-metal3.sized(-1.dbu).sized(1.dbu).space(70.nm, euclidian).output("METAL3.2", "METAL3.2 : Minimum spacing of  intermediate metal3 : 70nm")
+metal3.width(70.nm, euclidian).output("METAL3.1", "METAL3.1 : Minimum width of  intermediate metal3 : 70nm")
+metal3.space(70.nm, euclidian).output("METAL3.2", "METAL3.2 : Minimum spacing of  intermediate metal3 : 70nm")
 via2_edges_with_less_enclosure = metal3.enclosing(via2, 35.nm, projection).second_edges
 error_corners = via2_edges_with_less_enclosure.width(angle_limit(100.0), 1.dbu)
 via2.interacting(error_corners.polygons(1.dbu)).output("METAL3.3", "METAL3.3 : Minimum enclosure around via2 on two opposite sides : 35nm")
 via3_edges_with_less_enclosure = metal3.enclosing(via3, 35.nm, projection).second_edges
 error_corners = via3_edges_with_less_enclosure.width(angle_limit(100.0), 1.dbu)
 via3.interacting(error_corners.polygons(1.dbu)).output("METAL3.4", "METAL3.4 : Minimum enclosure around via3 on two opposite sides : 35nm")
-metal3.sized(-1.dbu).sized(-45.nm).sized(45.nm).edges.with_length(300.nm,nil).space(90.nm,euclidian).output("METAL3.5", "METAL3.5 : Minimum spacing of  intermediate metal3 wider than 90 nm and longer than 300 nm : 90nm")
-metal3.sized(-1.dbu).sized(-135.nm).sized(135.nm).edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL3.6", "METAL3.6 : Minimum spacing of  intermediate metal3 wider than 270 nm and longer than 900 nm : 270nm")
-metal3.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL3.7", "METAL3.7 : Minimum spacing of  intermediate metal3 wider than 500 nm and longer than 1.8 um : 500nm")
-metal3.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL3.8", "METAL3.8 : Minimum spacing of  intermediate metal3 wider than 900 nm and longer than 2.7 um : 900nm")
-metal3.sized(-1.dbu).sized(-750.nm).sized(750.nm).edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL3.9", "METAL3.9 : Minimum spacing of  intermediate metal3 wider than 1500 nm and longer than 4.0 um : 1500nm")
+metal3_gt90, metal3_gt270, metal3_gt500, metal3_gt900, metal3_gt1500 = classify_by_width(metal3, 90.nm, 270.nm, 500.nm, 900.nm, 1500.nm)
+metal3_gt90.edges.with_length(300.nm,nil).space(90.nm,euclidian).output("METAL3.5", "METAL3.5 : Minimum spacing of  intermediate metal3 wider than 90 nm and longer than 300 nm : 90nm")
+metal3_gt270.edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL3.6", "METAL3.6 : Minimum spacing of  intermediate metal3 wider than 270 nm and longer than 900 nm : 270nm")
+metal3_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL3.7", "METAL3.7 : Minimum spacing of  intermediate metal3 wider than 500 nm and longer than 1.8 um : 500nm")
+metal3_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL3.8", "METAL3.8 : Minimum spacing of  intermediate metal3 wider than 900 nm and longer than 2.7 um : 900nm")
+metal3_gt1500.edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL3.9", "METAL3.9 : Minimum spacing of  intermediate metal3 wider than 1500 nm and longer than 4.0 um : 1500nm")
 
 #   via3
 via3.edges.without_length(70.nm).output("VIA3.1", "VIA3.1 : Minimum/Maximum width of via3 : 70nm")
@@ -189,11 +196,12 @@ via3.not(metal3).output("VIA3.3", "VIA3.3 : via3 must be inside metal3")
 via3.not(metal4).output("VIA3.4", "VIA3.4 : via3 must be inside metal4")
 
 #   metal4
-metal4.sized(-1.dbu).sized(1.dbu).width(140.nm, euclidian).output("METAL4.1", "METAL4.1 : Minimum width of  semi-global metal4 : 140nm")
-metal4.sized(-1.dbu).sized(1.dbu).space(140.nm, euclidian).output("METAL4.2", "METAL4.2 : Minimum spacing of  semi-global metal4 : 140nm")
-metal4.sized(-1.dbu).sized(-135.nm).sized(135.nm).edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL4.6", "METAL4.6 : Minimum spacing of semi-global metal4 wider than 270 nm and longer than 900 nm : 270nm")
-metal4.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL4.7", "METAL4.7 : Minimum spacing of semi-global metal4 wider than 500 nm and longer than 1.8 um : 500nm")
-metal4.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL4.8", "METAL4.8 : Minimum spacing of semi-global meta4l wider than 900 nm and longer than 2.7 um : 900nm")
+metal4.width(140.nm, euclidian).output("METAL4.1", "METAL4.1 : Minimum width of  semi-global metal4 : 140nm")
+metal4.space(140.nm, euclidian).output("METAL4.2", "METAL4.2 : Minimum spacing of  semi-global metal4 : 140nm")
+metal4_gt270, metal4_gt500, metal4_gt900 = classify_by_width(metal4, 270.nm, 500.nm, 900.nm)
+metal4_gt270.edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL4.6", "METAL4.6 : Minimum spacing of semi-global metal4 wider than 270 nm and longer than 900 nm : 270nm")
+metal4_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL4.7", "METAL4.7 : Minimum spacing of semi-global metal4 wider than 500 nm and longer than 1.8 um : 500nm")
+metal4_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL4.8", "METAL4.8 : Minimum spacing of semi-global meta4l wider than 900 nm and longer than 2.7 um : 900nm")
 
 #   via4
 via4.edges.without_length(140.nm).output("VIA4.1", "VIA4.1 : Minimum/Maximum width of via4 : 140nm")
@@ -202,11 +210,12 @@ via4.not(metal4).output("VIA4.3", "VIA4.3 : via4 must be inside metal4")
 via4.not(metal5).output("VIA4.4", "VIA4.4 : via4 must be inside metal5")
 
 #   metal5
-metal5.sized(-1.dbu).sized(1.dbu).width(140.nm, euclidian).output("METAL5.1", "METAL5.1 : Minimum width of semi-global metal5 : 140nm")
-metal5.sized(-1.dbu).sized(1.dbu).space(140.nm, euclidian).output("METAL5.2", "METAL5.2 : Minimum spacing of semi-global metal5 : 140nm")
-metal5.sized(-1.dbu).sized(-135.nm).sized(135.nm).edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL5.6", "METAL5.6 : Minimum spacing of semi-global metal5 wider than 270 nm and longer than 900 nm : 270nm")
-metal5.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL5.7", "METAL5.7 : Minimum spacing of semi-global metal5 wider than 500 nm and longer than 1.8 um : 500nm")
-metal5.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL5.8", "METAL5.8 : Minimum spacing of semi-global meta5l wider than 900 nm and longer than 2.7 um : 900nm")
+metal5.width(140.nm, euclidian).output("METAL5.1", "METAL5.1 : Minimum width of semi-global metal5 : 140nm")
+metal5.space(140.nm, euclidian).output("METAL5.2", "METAL5.2 : Minimum spacing of semi-global metal5 : 140nm")
+metal5_gt270, metal5_gt500, metal5_gt900 = classify_by_width(metal5, 270.nm, 500.nm, 900.nm)
+metal5_gt270.edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL5.6", "METAL5.6 : Minimum spacing of semi-global metal5 wider than 270 nm and longer than 900 nm : 270nm")
+metal5_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL5.7", "METAL5.7 : Minimum spacing of semi-global metal5 wider than 500 nm and longer than 1.8 um : 500nm")
+metal5_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL5.8", "METAL5.8 : Minimum spacing of semi-global meta5l wider than 900 nm and longer than 2.7 um : 900nm")
 
 #   via5
 via5.edges.without_length(140.nm).output("VIA5.1", "VIA5.1 : Minimum/Maximum width of via5 : 140nm")
@@ -215,11 +224,12 @@ via5.not(metal5).output("VIA5.3", "VIA5.3 : via5 must be inside metal5")
 via5.not(metal6).output("VIA5.4", "VIA5.4 : via5 must be inside metal6")
 
 #   metal6
-metal6.sized(-1.dbu).sized(1.dbu).width(140.nm, euclidian).output("METAL6.1", "METAL6.1 : Minimum width of semi-global metal6 : 140nm")
-metal6.sized(-1.dbu).sized(1.dbu).space(140.nm, euclidian).output("METAL6.2", "METAL6.2 : Minimum spacing of semi-global metal6 : 140nm")
-metal6.sized(-1.dbu).sized(-135.nm).sized(135.nm).edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL6.6", "METAL6.6 : Minimum spacing of semi-global metal6 wider than 270 nm and longer than 900 nm : 270nm")
-metal6.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL6.7", "METAL6.7 : Minimum spacing of semi-global metal6 wider than 500 nm and longer than 1.8 um : 500nm")
-metal6.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL6.8", "METAL6.8 : Minimum spacing of semi-global metal6 wider than 900 nm and longer than 2.7 um : 900nm")
+metal6.width(140.nm, euclidian).output("METAL6.1", "METAL6.1 : Minimum width of semi-global metal6 : 140nm")
+metal6.space(140.nm, euclidian).output("METAL6.2", "METAL6.2 : Minimum spacing of semi-global metal6 : 140nm")
+metal6_gt270, metal6_gt500, metal6_gt900 = classify_by_width(metal6, 270.nm, 500.nm, 900.nm)
+metal6_gt270.edges.with_length(900.nm,nil).space(270.nm,euclidian).output("METAL6.6", "METAL6.6 : Minimum spacing of semi-global metal6 wider than 270 nm and longer than 900 nm : 270nm")
+metal6_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL6.7", "METAL6.7 : Minimum spacing of semi-global metal6 wider than 500 nm and longer than 1.8 um : 500nm")
+metal6_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL6.8", "METAL6.8 : Minimum spacing of semi-global metal6 wider than 900 nm and longer than 2.7 um : 900nm")
 
 #   via6
 via6.edges.without_length(140.nm).output("VIA6.1", "VIA6.1 : Minimum/Maximum width of via6 : 140nm")
@@ -228,11 +238,12 @@ via6.not(metal6).output("VIA6.3", "VIA6.3 : via6 must be inside metal6")
 via6.not(metal7).output("VIA6.4", "VIA6.4 : via6 must be inside metal7")
 
 #   metal7
-metal7.sized(-1.dbu).sized(1.dbu).width(400.nm, euclidian).output("METAL7.1", "METAL7.1 : Minimum width of thin global metal7 : 400nm")
-metal7.sized(-1.dbu).sized(1.dbu).space(400.nm, euclidian).output("METAL7.2", "METAL7.2 : Minimum spacing of thin global metal7 : 400nm")
-metal7.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL7.7", "METAL7.7 : Minimum spacing of thin global metal7 wider than 500 nm and longer than 1.8 um : 500nm")
-metal7.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL7.8", "METAL7.8 : Minimum spacing of thin global metal7 wider than 900 nm and longer than 2.7 um : 900nm")
-metal7.sized(-1.dbu).sized(-750.nm).sized(750.nm).edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL7.9", "METAL7.9 : Minimum spacing of thin global meta7l wider than 1500 nm and longer than 4.0 um : 1500nm")
+metal7.width(400.nm, euclidian).output("METAL7.1", "METAL7.1 : Minimum width of thin global metal7 : 400nm")
+metal7.space(400.nm, euclidian).output("METAL7.2", "METAL7.2 : Minimum spacing of thin global metal7 : 400nm")
+metal7_gt500, metal7_gt900, metal7_gt1500 = classify_by_width(metal7, 500.nm, 900.nm, 1500.nm)
+metal7_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL7.7", "METAL7.7 : Minimum spacing of thin global metal7 wider than 500 nm and longer than 1.8 um : 500nm")
+metal7_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL7.8", "METAL7.8 : Minimum spacing of thin global metal7 wider than 900 nm and longer than 2.7 um : 900nm")
+metal7_gt1500.edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL7.9", "METAL7.9 : Minimum spacing of thin global meta7l wider than 1500 nm and longer than 4.0 um : 1500nm")
 
 #   via7
 via7.edges.without_length(400.nm).output("VIA6.1", "VIA6.1 : Minimum/Maximum width of via7 : 400nm")
@@ -241,11 +252,12 @@ via7.not(metal7).output("VIA7.3", "VIA7.3 : via7 must be inside metal7")
 via7.not(metal8).output("VIA7.4", "VIA7.4 : via7 must be inside metal8")
 
 #   metal8
-metal8.sized(-1.dbu).sized(1.dbu).width(400.nm, euclidian).output("METAL8.1", "METAL8.1 : Minimum width of thin global metal8 : 400nm")
-metal8.sized(-1.dbu).sized(1.dbu).space(400.nm, euclidian).output("METAL8.2", "METAL8.2 : Minimum spacing of thin global metal8 : 400nm")
-metal8.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL8.7", "METAL8.7 : Minimum spacing of thin global metal8 wider than 500 nm and longer than 1.8 um : 500nm")
-metal8.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL8.8", "METAL8.8 : Minimum spacing of thin global metal8 wider than 900 nm and longer than 2.7 um : 900nm")
-metal8.sized(-1.dbu).sized(-750.nm).sized(750.nm).edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL8.9", "METAL8.9 : Minimum spacing of thin global metal8 wider than 1500 nm and longer than 4.0 um : 1500nm")
+metal8.width(400.nm, euclidian).output("METAL8.1", "METAL8.1 : Minimum width of thin global metal8 : 400nm")
+metal8.space(400.nm, euclidian).output("METAL8.2", "METAL8.2 : Minimum spacing of thin global metal8 : 400nm")
+metal8_gt500, metal8_gt900, metal8_gt1500 = classify_by_width(metal8, 500.nm, 900.nm, 1500.nm)
+metal8_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL8.7", "METAL8.7 : Minimum spacing of thin global metal8 wider than 500 nm and longer than 1.8 um : 500nm")
+metal8_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL8.8", "METAL8.8 : Minimum spacing of thin global metal8 wider than 900 nm and longer than 2.7 um : 900nm")
+metal8_gt1500.edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL8.9", "METAL8.9 : Minimum spacing of thin global metal8 wider than 1500 nm and longer than 4.0 um : 1500nm")
 
 #   via8
 via8.edges.without_length(400.nm).output("VIA8.1", "VIA8.1 : Minimum/Maximum width of via8 : 400nm")
@@ -254,11 +266,12 @@ via8.not(metal8).output("VIA8.3", "VIA8.3 : via8 must be inside metal8")
 via8.not(metal9).output("VIA8.4", "VIA8.4 : via8 must be inside metal9")
 
 #   metal9
-metal9.sized(-1.dbu).sized(1.dbu).width(800.nm, euclidian).output("METAL9.1", "METAL9.1 : Minimum width of global metal9 : 800nm")
-metal9.sized(-1.dbu).sized(1.dbu).space(800.nm, euclidian).output("METAL9.2", "METAL9.2 : Minimum spacing of global metal9 : 800nm")
-metal9.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL9.7", "METAL9.7 : Minimum spacing of global metal9 wider than 500 nm and longer than 1.8 um : 500nm")
-metal9.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL9.8", "METAL9.8 : Minimum spacing of global metal9 wider than 900 nm and longer than 2.7 um : 900nm")
-metal9.sized(-1.dbu).sized(-750.nm).sized(750.nm).edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL9.9", "METAL9.9 : Minimum spacing of global metal9 wider than 1500 nm and longer than 4.0 um : 1500nm")
+metal9.width(800.nm, euclidian).output("METAL9.1", "METAL9.1 : Minimum width of global metal9 : 800nm")
+metal9.space(800.nm, euclidian).output("METAL9.2", "METAL9.2 : Minimum spacing of global metal9 : 800nm")
+metal9_gt500, metal9_gt900, metal9_gt1500 = classify_by_width(metal9, 500.nm, 900.nm, 1500.nm)
+metal9_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL9.7", "METAL9.7 : Minimum spacing of global metal9 wider than 500 nm and longer than 1.8 um : 500nm")
+metal9_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL9.8", "METAL9.8 : Minimum spacing of global metal9 wider than 900 nm and longer than 2.7 um : 900nm")
+metal9_gt1500.edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL9.9", "METAL9.9 : Minimum spacing of global metal9 wider than 1500 nm and longer than 4.0 um : 1500nm")
 
 #   via9
 via9.edges.without_length(800.nm).output("VIA9.1", "VIA9.1 : Minimum/Maximum width of via9 : 800nm")
@@ -267,12 +280,12 @@ via9.not(metal9).output("VIA9.3", "VIA9.3 : via9 must be inside metal9")
 via9.not(metal10).output("VIA9.4", "VIA9.4 : via9 must be inside metal10")
 
 #   metal10
-metal10.sized(-1.dbu).sized(1.dbu).width(800.nm, euclidian).output("METAL10.1", "METAL10.1 : Minimum width of global metal10 : 800nm")
-metal10.sized(-1.dbu).sized(1.dbu).space(800.nm, euclidian).output("METAL10.2", "METAL10.2 : Minimum spacing of global metal10 : 800nm")
-metal10.sized(-1.dbu).sized(-250.nm).sized(250.nm).edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL10.7", "METAL10.7 : Minimum spacing of global metal10 wider than 500 nm and longer than 1.8 um : 500nm")
-metal10.sized(-1.dbu).sized(-450.nm).sized(450.nm).edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL10.8", "METAL10.8 : Minimum spacing of global metal10 wider than 900 nm and longer than 2.7 um : 900nm")
-metal10.sized(-1.dbu).sized(-750.nm).sized(750.nm).edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL10.9", "METAL10.9 : Minimum spacing of global metal10 wider than 1500 nm and longer than 4.0 um : 1500nm")
-
+metal10.width(800.nm, euclidian).output("METAL10.1", "METAL10.1 : Minimum width of global metal10 : 800nm")
+metal10.space(800.nm, euclidian).output("METAL10.2", "METAL10.2 : Minimum spacing of global metal10 : 800nm")
+metal10_gt500, metal10_gt900, metal10_gt1500 = classify_by_width(metal10, 500.nm, 900.nm, 1500.nm)
+metal10_gt500.edges.with_length(1.8.um,nil).space(500.nm,euclidian).output("METAL10.7", "METAL10.7 : Minimum spacing of global metal10 wider than 500 nm and longer than 1.8 um : 500nm")
+metal10_gt900.edges.with_length(2.7.um,nil).space(900.nm,euclidian).output("METAL10.8", "METAL10.8 : Minimum spacing of global metal10 wider than 900 nm and longer than 2.7 um : 900nm")
+metal10_gt1500.edges.with_length(4.um,nil).space(1500.nm,euclidian).output("METAL10.9", "METAL10.9 : Minimum spacing of global metal10 wider than 1500 nm and longer than 4.0 um : 1500nm")
 
 
 
@@ -287,7 +300,7 @@ all_drawing = [ :well, :active, :vtg, :vth, :pplus, :nplus, :poly, :thkox, :cont
 all_drawing.each do |dwg|
   # a Ruby idiom to get the value of a variable whose name is in "dwg" (as symbol)
   layer = binding.local_variable_get(dwg)
-  r_grid = layer.sized(-1.dbu).sized(1.dbu).ongrid(grid).polygons(10.nm)
+  r_grid = layer.ongrid(grid).polygons(10.nm)
   r_grid.output("GRID: vertexes on layer #{dwg} not on grid of #{'%.12g' % grid}")
 end
 end
