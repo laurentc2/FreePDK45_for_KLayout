@@ -39,7 +39,7 @@ report_netlist("extracted.l2n")
 target_netlist(File.join(File.dirname(RBA::CellView::active.filename), source.cell_name+"_extracted.cir"), write_spice(spice_with_net_names, spice_with_comments),  "Extracted by KLayout on : #{Time.now.strftime("%d/%m/%Y %H:%M")}")
 
 # Specify the reference CIRCUIT NETLIST
-schematic("sram_1rw_8b_256w_1bank_freepdk45.sp")
+schematic("INV.cir")
 
 # layers definitions
 ########################
@@ -154,6 +154,38 @@ align
 #netlist.purge_nets
 netlist.simplify
 #schematic.simplify
+
+# Tolerances for the devices extracted parameters
+#  tolerance(device_class_name, parameter_name [, :absolute =&gt; absolute_tolerance] [, :relative =&gt; relative_tolerance])
+tolerance("PMOS_LVT", "W", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("PMOS_LVT", "L", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("PMOS_GVT", "W", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("PMOS_GVT", "L", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("PMOS_HVT", "W", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("PMOS_HVT", "L", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("NMOS_LVT", "W", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("NMOS_LVT", "L", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("NMOS_GVT", "W", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("NMOS_GVT", "L", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("NMOS_HVT", "W", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+tolerance("NMOS_HVT", "L", :absolute =&gt; 1.nm, :relative =&gt; 0.001)
+
+# Digital gates input equivalence :
+equivalent_pins("AND2", "A", "B")
+equivalent_pins("AND3", "A", "B", "C")
+equivalent_pins("AND4", "A", "B", "C", "D")
+equivalent_pins("NAND2", "A", "B")
+equivalent_pins("NAND3", "A", "B", "C")
+equivalent_pins("NAND4", "A", "B", "C", "D")
+equivalent_pins("OR2", "A", "B")
+equivalent_pins("OR3", "A", "B", "C")
+equivalent_pins("OR4", "A", "B", "C", "D")
+equivalent_pins("NOR2", "A", "B")
+equivalent_pins("NOR3", "A", "B", "C")
+equivalent_pins("NOR4", "A", "B", "C", "D")
+
+max_res(1000000)
+min_caps(1e-15)
 
 compare</text>
 </klayout-macro>
