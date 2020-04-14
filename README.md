@@ -17,4 +17,4 @@ Then, you can copy the file **FreePDK45.lyp**, **FreePDK45.lyt** and the 2 direc
 
 ## INV test case
 
-Copy the INV directory in your usual working area. You can run DRC and LVS on any of the cells : **INV**, **DBLE_INV_SPLIT**, **DBLE_INV_MERGE**. But so far , the **DBLE_INV_MERGE** has a LVS issue in hierarchical LVS, because of the merged drains between 2 sub-cells.
+Copy the INV directory in your usual working area. You can run DRC and LVS on any of the cells : **INV**, **DBLE_INV_SPLIT**, **DBLE_INV_MERGE**. But so far , the **DBLE_INV_MERGE** has an issue with the hierarchical (deep) LVS, because of the merged drains between 2 sub-cells, although it is OK with the flat LVS (deep commented).
