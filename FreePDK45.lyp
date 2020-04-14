@@ -197,9 +197,9 @@
   <valid>true</valid>
   <visible>true</visible>
   <transparent>false</transparent>
-  <width>1</width>
+  <width>2</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>contact.drawing - 10/0</name>
   <source>10/0@1</source>
@@ -267,7 +267,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via1.drawing - 12/0</name>
   <source>12/0@1</source>
@@ -335,7 +335,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via2.drawing - 14/0</name>
   <source>14/0@1</source>
@@ -403,7 +403,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via3.drawing - 16/0</name>
   <source>16/0@1</source>
@@ -471,7 +471,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via4.drawing - 18/0</name>
   <source>18/0@1</source>
@@ -539,7 +539,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via5.drawing - 20/0</name>
   <source>20/0@1</source>
@@ -607,7 +607,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via6.drawing - 22/0</name>
   <source>22/0@1</source>
@@ -675,7 +675,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via7.drawing - 24/0</name>
   <source>24/0@1</source>
@@ -743,7 +743,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via8.drawing - 26/0</name>
   <source>26/0@1</source>
@@ -811,7 +811,7 @@
   <transparent>false</transparent>
   <width>1</width>
   <marked>false</marked>
-  <xfill>false</xfill>
+  <xfill>true</xfill>
   <animation>0</animation>
   <name>via9.drawing - 28/0</name>
   <source>28/0@1</source>
