@@ -5,7 +5,7 @@
  <group/>
  <dbu>0.001</dbu>
  <base-path>$(appdata_path)/tech/FreePDK45</base-path>
- <original-base-path>$(appdata_path)/tech/FreePDK45</original-base-path>
+ <original-base-path>.klayout/tech/FreePDK45</original-base-path>
  <layer-properties_file>FreePDK45.lyp</layer-properties_file>
  <add-other-layers>true</add-other-layers>
  <reader-options>
