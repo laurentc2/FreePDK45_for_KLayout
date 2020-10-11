@@ -149,24 +149,24 @@
   <symbols>DrainSource='1/0 - 9/0'</symbols>
   <symbols>poly='9/0'</symbols>
   <symbols>contact='10/0'</symbols>
-  <symbols>metal1='11/0'</symbols>
+  <symbols>metal1='11/0 + 11/1 + 11/2'</symbols>
   <symbols>via1='12/0'</symbols>
-  <symbols>metal2='13/0'</symbols>
+  <symbols>metal2='13/0 + 13/1 + 13/2'</symbols>
   <symbols>via2='14/0'</symbols>
-  <symbols>metal3.='15/0'</symbols>
-  <symbols>via3.drawin='16/0'</symbols>
-  <symbols>metal4='17/0'</symbols>
+  <symbols>metal3='15/0 + 15/1 + 15/2'</symbols>
+  <symbols>via3='16/0'</symbols>
+  <symbols>metal4='17/0 + 17/1 + 17/2'</symbols>
   <symbols>via4='18/0'</symbols>
-  <symbols>metal5='19/0'</symbols>
+  <symbols>metal5='19/0 + 19/1 + 19/2'</symbols>
   <symbols>via5='20/0'</symbols>
-  <symbols>metal6='21/0'</symbols>
+  <symbols>metal6='21/0 + 21/1 + 21/2'</symbols>
   <symbols>via6='22/0'</symbols>
-  <symbols>metal7='23/0'</symbols>
+  <symbols>metal7='23/0 + 23/1 + 23/2'</symbols>
   <symbols>via7='24/0'</symbols>
-  <symbols>metal8='25/0'</symbols>
+  <symbols>metal8='25/0 + 25/1 + 25/2'</symbols>
   <symbols>via8='26/0'</symbols>
-  <symbols>metal9='27/0'</symbols>
+  <symbols>metal9='27/0 + 27/1 + 27/2'</symbols>
   <symbols>via9='28/0'</symbols>
-  <symbols>metal10='29/0'</symbols>
+  <symbols>metal10='29/0 + 29/1 + 29/2'</symbols>
  </connectivity>
 </technology>
