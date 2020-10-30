@@ -206,7 +206,7 @@ connect_global(nwell, "VDD")
 connect_global(bulk, "VSS")
 
 # NangateOpenCellLibrary Digital gates  VDD VSS implicit connection due to lack of taps insides the cells
-# Only work with KLayout versions released after 2020, Oct 11
+# Only work with KLayout versions after 0.27 released after 2020, Oct 11
 connect_implicit("AND2_X1" , "VDD")
 connect_implicit("AND2_X1" , "VSS")
 connect_implicit("AND2_X2" , "VDD")
