@@ -1,8 +1,8 @@
 * INV circuit for Double inverter LVS check
 
 .SUBCKT INV A Z gnd vdd
-M1 gnd A Z gnd NMOS_GVT L=0.05U W=0.095U
-M2 vdd A Z vdd PMOS_GVT L=0.05U W=0.27U
+M1 gnd A Z gnd NMOS_VTG L=0.05U W=0.095U
+M2 vdd A Z vdd PMOS_VTG L=0.05U W=0.27U
 .ENDS INV
 
 .SUBCKT DBLE_INV_SPLIT A ZA ZB gnd vdd
