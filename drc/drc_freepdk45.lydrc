@@ -20,10 +20,22 @@
 #   https://www.eda.ncsu.edu/wiki/FreePDK45:Contents
 # 
 ##########################################################################################
+tstart = Time.now
 
-# options
-########################
-report("FreePDK45 DRC runset", File.join(File.dirname(RBA::CellView::active.filename), "FreePDK45_DRC.txt"))
+# optionnal for a batch launch :   klayout -b r drc_FreePDK45.lydrc -rd input=my_layout.gds -rd topcell=your_topcell -rd output=drc_FreePDK45.lydrc
+if $input
+  if $topcell
+    source($input,$topcell)
+  else
+    source($input)
+  end
+end
+
+if $output
+  report("FreePDK45 DRC runset", $output)
+else
+  report("FreePDK45 DRC runset", "FreePDK45_DRC.lydrc")
+end
 
 # DRC test to run or not
 ###############
@@ -350,5 +362,12 @@ antenna_check(gate, metal10, 300.0, diode).output("METAL10_ANTENNA", "METAL10_AN
 
 # this will remove all connections made
 clear_connections
-end</text>
+end
+
+# time spent for the DRC
+time = Time.now
+hours = ((time - tstart)/3600).to_i
+minutes = ((time - tstart)/60 - hours * 60).to_i
+seconds = ((time - tstart) - (minutes * 60 + hours * 3600)).to_i
+$stdout.write "DRC finished at : #{time.hour}:#{time.min}:#{time.sec}  -  DRC duration =  #{hours} hrs. #{minutes} min. #{seconds} sec.\n"</text>
 </klayout-macro>
