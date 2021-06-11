@@ -23,7 +23,7 @@
 ##########################################################################################
 tstart = Time.now
 
-# optionnal for a batch launch :   klayout -b r drc_FreePDK45.lydrc -rd input=my_layout.gds -rd topcell=your_topcell -rd output=drc_FreePDK45.lydrc
+# optionnal for a batch launch :   klayout -b r drc_FreePDK45.lydrc -rd input=my_layout.gds -rd topcell=your_topcell -rd output=drc_FreePDK45.lyrdb
 if $input
   if $topcell
     source($input,$topcell)
