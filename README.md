@@ -1,6 +1,6 @@
 # FreePDK45_for_KLayout
 
-## KLayout technology files for FreePDK45
+## KLayout (version 0.27 or higher) technology files for FreePDK45
 
  * FreePDK45.lyt   : technology and connections description  
  * FreePDK45.lyp   : layers color and shape description  
